@@ -41,7 +41,7 @@ Get-Command code -ErrorAction SilentlyContinue | Select-Object -First 1 | Format
 3. インストール確認（フィルタ表示）
 
 ```powershell
-code --list-extensions | Select-String -Pattern 'rainbow-csv|vscode-edit-csv|markdown-pdf|git-graph|todo-tree'
+code --list-extensions | Select-String -Pattern 'vscode-edit-csv|markdown-pdf|git-graph|todo-tree'
 ```
 ### 拡張機能一覧表とマニュアル格納先
 - 参照先: [docs/extensions.md](docs/extensions.md)
@@ -125,7 +125,7 @@ docker run --rm \
   -v "$HOME/.local/share/code-server":/home/coder/.local/share/code-server \
   -v "$PWD":/workspace \
   -w /workspace \
-  <image-with-code-server> bash -lc "code-server --install-extension mechatroner.rainbow-csv"
+  <image-with-code-server> bash -lc "code-server --install-extension janisdd.vscode-edit-csv"
 ```
 - 例（Windows PowerShell・code-server利用例・パス要調整）:
 ```powershell
@@ -133,7 +133,7 @@ docker run --rm `
   -v "$env:USERPROFILE\.code-server":/home/coder/.local/share/code-server `
   -v "$PWD":/workspace `
   -w /workspace `
-  <image-with-code-server> bash -lc "code-server --install-extension mechatroner.rainbow-csv"
+  <image-with-code-server> bash -lc "code-server --install-extension janisdd.vscode-edit-csv"
 ```
 - 次のステップ（提案）:
   - `Dockerfile` と `docker-compose.yml` の雛形を追加（`code-server`入りイメージ、拡張のバッチ適用コマンドを同梱）。

@@ -1,0 +1,13 @@
+id,name,email,signup_date,plan,active,balance,tags,notes
+1,山田太郎,taro.yamada@example.com,2025-10-12,Free,true,0,"intro;jp","初回登録"
+2,佐藤花子,hanako.sato@example.com,2025-11-05,Pro,true,1200.50,"pro;priority","請求書送付済み"
+3,John Doe,john.doe@example.com,2025-09-01,Business,false,0,"trial","キャンセル理由: 価格"
+4,"鈴木, 次郎",jiro.suzuki@example.com,2025-12-20,Pro,true,300.00,"pro","名前にカンマあり"
+5,Alice Tanaka,alice.tanaka@example.com,2026-01-02,Free,true,0,"free","メモ: He said ""Hello"""
+6,Bob Kato,bob.kato@example.com,2025-08-15,Enterprise,false,5000,"enterprise;late","支払い遅延"
+7,田中一郎,ichiro.tanaka@example.com,2025-07-22,Pro,true,980.75,"pro;annual","年契約"
+8,Mika Ito,mika.ito@example.com,2026-02-01,Free,true,0,"free","招待経由"
+9,Kenji Watanabe,kenji.w@example.com,2025-12-31,Business,true,1500,"business","年末加入"
+10,Naomi Hayashi,naomi.hayashi@example.com,2026-02-07,Pro,false,0,"churn","利用停止"
+11,Test User,test.user@example.com,2026-02-08,Pro,true,200,"pro;beta","チェック用"
+12,CSV Checker,checker@example.com,2026-01-31,Free,true,0,"free","列数一致テスト"
