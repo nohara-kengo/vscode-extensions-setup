@@ -10,6 +10,11 @@
     - [拡張機能一覧表とマニュアル格納先](#拡張機能一覧表とマニュアル格納先)
   - [インストール詳細](#インストール詳細)
   - [アンインストール詳細](#アンインストール詳細)
+  - [スクリプト実行ポリシー（PowerShell）](#スクリプト実行ポリシーpowershell)
+    - [セッション限定の回避（安全・推奨）](#セッション限定の回避安全推奨)
+    - [恒久設定（開発方針に従うこと）](#恒久設定開発方針に従うこと)
+    - [確認コマンド（任意）](#確認コマンド任意)
+    - [期待値（コマンド実行後の出力例）](#期待値コマンド実行後の出力例)
   - [追加の検討事項](#追加の検討事項)
     - [OS別コマンド差分（PowerShell / Bash）](#os別コマンド差分powershell--bash)
     - [Dockerからの実行（ボリューム連携）](#dockerからの実行ボリューム連携)
@@ -27,7 +32,8 @@
 実行場所: リポジトリ直下でコマンドを実行してください。
 
 ```powershell
-cd vscode-extensions-setup
+# 例：別ディレクトリから移動する場合（現在がリポジトリ直下なら不要）
+cd c:\git\vscode-extensions-setup
 ```
 
 1. `code` CLI が使えるか確認
@@ -69,6 +75,73 @@ code --list-extensions | Select-String -Pattern 'vscode-edit-csv|markdown-pdf|gi
 .\uninstall-extensions.ps1
 
 ```
+
+## スクリプト実行ポリシー（PowerShell）
+- 原因: 既定の実行ポリシー（例: `Restricted`）やダウンロード由来のブロック属性により、`*.ps1` の実行が拒否されることがあります。
+- 推奨: セッション限定で回避し、必要に応じてブロック解除を行います。
+
+### セッション限定の回避（安全・推奨）
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+Get-ChildItem -Path . -Filter *.ps1 -Recurse | Unblock-File
+```
+- その後、スクリプトを実行:
+```powershell
+.\install-extensions.ps1
+.\uninstall-extensions.ps1
+```
+
+### 恒久設定（開発方針に従うこと）
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+### 確認コマンド（任意）
+```powershell
+Get-ExecutionPolicy -List
+code --list-extensions | Select-String -Pattern 'markdown-pdf|git-graph|todo-tree|vscode-edit-csv'
+```
+
+### 期待値（コマンド実行後の出力例）
+- 実行ポリシー一覧（`Get-ExecutionPolicy -List` 実行後）
+  例：セッション限定回避を行った場合
+  ```
+  Scope         ExecutionPolicy
+  -----         ---------------
+  MachinePolicy Undefined
+  UserPolicy    Undefined
+  Process       Bypass
+  CurrentUser   RemoteSigned
+  LocalMachine  Undefined
+  ```
+  - 期待値: `Process` が `Bypass` になっていれば、現在のセッションでスクリプトが実行可能。
+
+- 拡張一覧フィルタ（インストール確認）
+  - インストール済みの例:
+  ```
+  mhutchie.git-graph
+  yzane.markdown-pdf
+  Gruntfuggly.todo-tree
+  janisdd.vscode-edit-csv
+  ```
+  - アンインストール後の例: 該当拡張がなければ出力なし（何も表示されないのが期待値）。
+
+- 一括インストール（`.\\install-extensions.ps1`）の例:
+  ```
+  Running edit-csv.ps1...
+  Installing janisdd.vscode-edit-csv...
+  Extension 'janisdd.vscode-edit-csv' was successfully installed!
+  ...
+  ```
+
+- 一括アンインストール（`.\\uninstall-extensions.ps1`）の例:
+  ```
+  Running edit-csv-uninstall.ps1...
+  Uninstalling janisdd.vscode-edit-csv...
+  Extension 'janisdd.vscode-edit-csv' was successfully uninstalled!
+  Not installed: janisdd.vscode-edit-csv  # 既に削除済みの場合
+  ...
+  ```
 
 ## 追加の検討事項
 ### OS別コマンド差分（PowerShell / Bash）
