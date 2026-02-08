@@ -37,7 +37,7 @@ code --uninstall-extension yzane.markdown-pdf
 - エディタでMarkdownを開き、コマンドパレットで「Markdown PDF」と入力し、PDFへエクスポートします。
 - 右クリックメニューからのエクスポート（PDF/HTML/PNG/JPEG等）も利用可能です。
 
-## よく使うヒント
+## ガイドライン
 - 画像や数式、図（mermaid/PlantUML等）のレンダリングは環境や設定に依存します。うまく出力できない場合は拡張設定を確認してください。
 - 出力先フォルダ・ファイル名の規約は設定で変更可能です。
 

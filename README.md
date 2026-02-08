@@ -4,17 +4,26 @@
 ## 目次
 - [VS Code Extensions Setup](#vs-code-extensions-setup)
   - [目次](#目次)
+  - [前提条件（Windows）](#前提条件windows)
   - [クイックスタート（一括インストール）](#クイックスタート一括インストール)
     - [拡張機能一覧表とマニュアル格納先](#拡張機能一覧表とマニュアル格納先)
   - [インストール詳細](#インストール詳細)
   - [アンインストール詳細](#アンインストール詳細)
-  - [前提条件（Windows）](#前提条件windows)
-  - [インストール確認（詳細）](#インストール確認詳細)
   - [追加の検討事項](#追加の検討事項)
     - [OS別コマンド差分（PowerShell / Bash）](#os別コマンド差分powershell--bash)
     - [Dockerからの実行（ボリューム連携）](#dockerからの実行ボリューム連携)
 
+## 前提条件（Windows）
+- VS Code の `code` CLI が PATH で利用可能であること
+  - 通常はインストール時に有効化されます。未設定の場合は VS Code のインストールフォルダ配下 `bin` の `code` を PATH に追加してください。
+
 ## クイックスタート（一括インストール）
+実行場所: リポジトリ直下でコマンドを実行してください。
+
+```powershell
+cd vscode-extensions-setup
+```
+
 1. `code` CLI が使えるか確認
 
 ```powershell
@@ -35,7 +44,7 @@ Get-Command code -ErrorAction SilentlyContinue | Select-Object -First 1 | Format
 code --list-extensions | Select-String -Pattern 'rainbow-csv|vscode-edit-csv|markdown-pdf|git-graph|todo-tree'
 ```
 ### 拡張機能一覧表とマニュアル格納先
-- まとめて参照: [docs/extensions.md](docs/extensions.md)
+- 参照先: [docs/extensions.md](docs/extensions.md)
 
 ## インストール詳細
 配布・保守のしやすさから、拡張ごとの個別スクリプト（`scripts/extensions` 配下）を用意し、[install-extensions.ps1](install-extensions.ps1) でまとめて実行します。
@@ -54,13 +63,6 @@ code --list-extensions | Select-String -Pattern 'rainbow-csv|vscode-edit-csv|mar
 .\uninstall-extensions.ps1
 
 ```
-
-## 前提条件（Windows）
-- VS Code の `code` CLI が PATH で利用可能であること
-  - 通常はインストール時に有効化されます。未設定の場合は VS Code のインストールフォルダ配下 `bin` の `code` を PATH に追加してください。
-
-## インストール確認（詳細）
-クイックスタートと同じコマンドで確認できます。CIやセットアップチェック用のスクリプトからも利用可能です。
 
 ## 追加の検討事項
 ### OS別コマンド差分（PowerShell / Bash）
