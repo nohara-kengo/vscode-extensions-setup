@@ -2,119 +2,122 @@
 チーム内で使用する Visual Studio Code の拡張機能を統一し、新規メンバーや別チームでも開発環境を迅速に再現できるようにするためのリポジトリです。拡張機能の一覧をファイルで管理し、コマンド一つで自動インストールできます。
 
 ## 目次
-- [VS Code Extensions Setup](#vs-code-extensions-setup)
-  - [目次](#目次)
-  - [背景（Docker/コンテナ環境の課題）](#背景dockerコンテナ環境の課題)
-  - [前提条件（Windows）](#前提条件windows)
-  - [クイックスタート（一括インストール）](#クイックスタート一括インストール)
-    - [拡張機能一覧表とマニュアル格納先](#拡張機能一覧表とマニュアル格納先)
-  - [インストール詳細](#インストール詳細)
-  - [アンインストール詳細](#アンインストール詳細)
-  - [スクリプト実行ポリシー（PowerShell）](#スクリプト実行ポリシーpowershell)
-    - [セッション限定の回避（安全・推奨）](#セッション限定の回避安全推奨)
-    - [恒久設定（開発方針に従うこと）](#恒久設定開発方針に従うこと)
-    - [確認コマンド（任意）](#確認コマンド任意)
-    - [期待値（コマンド実行後の出力例）](#期待値コマンド実行後の出力例)
-  - [追加の検討事項](#追加の検討事項)
-    - [OS別コマンド差分（PowerShell / Bash）](#os別コマンド差分powershell--bash)
-    - [Dockerからの実行（ボリューム連携）](#dockerからの実行ボリューム連携)
+- [背景（Docker/コンテナ環境の課題）](#背景dockerコンテナ環境の課題)
+- [前提条件](#前提条件)
+  - [Windows](#windows)
+  - [Linux（Ubuntu/WSL）](#linuxubuntuwsl)
+- [クイックスタート（一括インストール）](#クイックスタート一括インストール)
+  - [OS差分を吸収するPythonスクリプト方式（推奨）](#os差分を吸収するpythonスクリプト方式推奨)
+  - [拡張機能一覧表とマニュアル格納先](#拡張機能一覧表とマニュアル格納先)
+- [インストール詳細](#インストール詳細)
+  - [個別拡張インストール・アンインストール](#個別拡張インストールアンインストール)
+- [スクリプト実行ポリシー（PowerShell/Bash両対応）](#スクリプト実行ポリシーパワーシェルbash両対応)
+  - [Windows（PowerShell）](#windowsパワーシェル)
+  - [Linux/WSL/Mac（Bash）](#linuxwslmacbash)
+  - [確認コマンド（任意）](#確認コマンド任意)
+  - [期待値（コマンド実行後の出力例）](#期待値コマンド実行後の出力例)
+- [追加の検討事項](#追加の検討事項)
+  - [Dockerからの実行（ボリューム連携）](#dockerからの実行ボリューム連携)
 
 ## 背景（Docker/コンテナ環境の課題）
 - 課題: コンテナ内にインストールした拡張機能は、コンテナを再作成・再起動すると揮発的なストレージのため消えてしまいがちです（毎回入れ直しが必要）。
 - 経緯: 毎回拡張が消えるのが運用上の負担だったため、このリポジトリに一括インストール/アンインストール用のスクリプトを導入し、環境再現を自動化しました。
 - 対応: Docker利用時は拡張ディレクトリをボリュームで永続化する運用を推奨し、必要に応じて起動時（CI/コンテナ起動フック等）にスクリプトで拡張を適用します。
 
-## 前提条件（Windows）
+## 前提条件
+
+### Windows
 - VS Code の `code` CLI が PATH で利用可能であること
   - 通常はインストール時に有効化されます。未設定の場合は VS Code のインストールフォルダ配下 `bin` の `code` を PATH に追加してください。
+
+### Linux（Ubuntu/WSL）
+- VS Code の `code` CLI が PATH で利用可能であること
+  - WSLの場合、`code`コマンドはVS Codeをインストールすると自動でPATHに追加されます。
+  - `code`が見つからない場合は、VS Codeを再インストールするか、`/usr/bin/code`のパスを確認してください。
+  - CLI確認は `which code` または `command -v code` で行います。
 
 ## クイックスタート（一括インストール）
 実行場所: リポジトリ直下でコマンドを実行してください。
 
-```powershell
-# 例：別ディレクトリから移動する場合（現在がリポジトリ直下なら不要）
-cd c:\git\vscode-extensions-setup
-```
+### OS差分を吸収するPythonスクリプト方式（推奨）
+Pythonがインストールされていれば、OS問わず同じ手順で拡張機能の一括インストール/アンインストールが可能です。
 
-1. `code` CLI が使えるか確認
+1. Pythonがインストールされていることを確認
+  - Windows: コマンドプロンプトやPowerShellで `python --version`
+  - Linux/WSL: ターミナルで `python3 --version` または `python --version`
+  - Pythonが入っていない場合は以下の手順でインストール（バージョンの指定は特にないため最新をインストールしてくだださい）
+    - Windows: [公式サイト](https://www.python.org/downloads/windows/)からインストーラーをダウンロードし、PATHに追加するオプションを有効化してインストール
+    - Linux/WSL: ターミナルで `sudo apt update && sudo apt install -y python3` を実行
 
-```powershell
-Get-Command code -ErrorAction SilentlyContinue | Select-Object -First 1 | Format-List | Out-String
-```
+---
+2. `code` CLIが使えることを確認
+  - `which code` または `Get-Command code` など
+3. 拡張を一括インストール
+  - リポジトリ直下で次のコマンドを実行
+    - Windows: `python scripts/extensions/extensions.py install`
+    - Linux/WSL: `python3 scripts/extensions/extensions.py install` または `python scripts/extensions/extensions.py install`
+4. 拡張を一括アンインストール
+  - Windows: `python scripts/extensions/extensions.py uninstall`
+  - Linux/WSL: `python3 scripts/extensions/extensions.py uninstall` または `python scripts/extensions/extensions.py uninstall`
+5. インストール確認（フィルタ表示）
+  - Windows: `code --list-extensions | Select-String -Pattern 'vscode-edit-csv|markdown-pdf|git-graph|todo-tree'`
+  - Linux/WSL: `code --list-extensions | grep -E 'vscode-edit-csv|markdown-pdf|git-graph|todo-tree'`
 
-出力に `Name : code.cmd` や `Path : ...\Microsoft VS Code\bin\code.cmd` が表示されればOKです。
+---
 
-2. 拡張を一括インストール（スクリプトを使用）
-
-```powershell
-.\install-extensions.ps1
-```
-
-3. インストール確認（フィルタ表示）
-
-```powershell
-code --list-extensions | Select-String -Pattern 'vscode-edit-csv|markdown-pdf|git-graph|todo-tree'
-```
+従来のPowerShell/Bash手順も参考として残しています。
 ### 拡張機能一覧表とマニュアル格納先
 - 参照先: [docs/extensions.md](docs/extensions.md)
 
 ## インストール詳細
-配布・保守のしやすさから、拡張ごとの個別スクリプト（`scripts/extensions` 配下）を用意し、[install-extensions.ps1](install-extensions.ps1) でまとめて実行します。
+OS差分を吸収するため、拡張機能の一括インストールはPythonスクリプト（scripts/extensions/extensions.py）で行います。
+拡張機能リストはスクリプト内で管理されており、コマンド一つで全てインストール可能です。
 
-```powershell
-#  一括インストール
-.\install-extensions.ps1
-
+### 個別拡張インストール・アンインストール
+拡張ごとに個別実行したい場合は、`scripts/extensions/extension_task.py` を利用してください。
+例：
+```bash
+# インストール
+python scripts/extensions/extension_task.py install janisdd.vscode-edit-csv
+# アンインストール
+python scripts/extensions/extension_task.py uninstall janisdd.vscode-edit-csv
 ```
 
-## アンインストール詳細
-配布・保守のしやすさから、拡張ごとの個別スクリプト（`scripts/extensions/uninstall` 配下）を用意し、[uninstall-extensions.ps1](uninstall-extensions.ps1) でまとめて実行します。
+---
+  - インストール済みの例:
+  ```
+  mhutchie.git-graph
+  yzane.markdown-pdf
+  Gruntfuggly.todo-tree
+  janisdd.vscode-edit-csv
+  ```
+  - アンインストール後の例: 該当拡張がなければ出力なし（何も表示されないのが期待値）。
 
-```powershell
-# 一括アンインストール
-.\uninstall-extensions.ps1
+  一括インストール（`python scripts/extensions/extensions.py install`）の例:
+  ```
+  Installing janisdd.vscode-edit-csv...
+  Installed: janisdd.vscode-edit-csv
+  このセクションは「Windows PowerShell」向けの実行ポリシー設定と、「Linux/WSL/Mac」向けの注意点を両方記載しています。どちらの手順も選択できます。
 
-```
+  #### Windows（PowerShell）
+  PowerShellスクリプト（.ps1）を使う場合、既定の実行ポリシーやブロック属性で実行できないことがあります。必要に応じて下記コマンドで一時的に許可してください。
 
-## スクリプト実行ポリシー（PowerShell）
-- 原因: 既定の実行ポリシー（例: `Restricted`）やダウンロード由来のブロック属性により、`*.ps1` の実行が拒否されることがあります。
-- 推奨: セッション限定で回避し、必要に応じてブロック解除を行います。
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+  Get-ChildItem -Path . -Filter *.ps1 -Recurse | Unblock-File
+  ```
 
-### セッション限定の回避（安全・推奨）
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-Get-ChildItem -Path . -Filter *.ps1 -Recurse | Unblock-File
-```
-- その後、スクリプトを実行:
-```powershell
-.\install-extensions.ps1
-.\uninstall-extensions.ps1
-```
+  ---
 
-### 恒久設定（開発方針に従うこと）
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
+  #### Linux/WSL/Mac（Bash）
+  Linux/WSL/Macではスクリプト実行ポリシーの概念はありません。BashスクリプトやPythonスクリプトはそのまま実行できます。
 
 ### 確認コマンド（任意）
 ```powershell
-Get-ExecutionPolicy -List
-code --list-extensions | Select-String -Pattern 'markdown-pdf|git-graph|todo-tree|vscode-edit-csv'
+code --list-extensions
 ```
 
 ### 期待値（コマンド実行後の出力例）
-- 実行ポリシー一覧（`Get-ExecutionPolicy -List` 実行後）
-  例：セッション限定回避を行った場合
-  ```
-  Scope         ExecutionPolicy
-  -----         ---------------
-  MachinePolicy Undefined
-  UserPolicy    Undefined
-  Process       Bypass
-  CurrentUser   RemoteSigned
-  LocalMachine  Undefined
-  ```
-  - 期待値: `Process` が `Bypass` になっていれば、現在のセッションでスクリプトが実行可能。
 
 - 拡張一覧フィルタ（インストール確認）
   - インストール済みの例:
@@ -126,7 +129,7 @@ code --list-extensions | Select-String -Pattern 'markdown-pdf|git-graph|todo-tre
   ```
   - アンインストール後の例: 該当拡張がなければ出力なし（何も表示されないのが期待値）。
 
-- 一括インストール（`.\\install-extensions.ps1`）の例:
+- 一括インストールの例:
   ```
   Running edit-csv.ps1...
   Installing janisdd.vscode-edit-csv...
@@ -134,7 +137,7 @@ code --list-extensions | Select-String -Pattern 'markdown-pdf|git-graph|todo-tre
   ...
   ```
 
-- 一括アンインストール（`.\\uninstall-extensions.ps1`）の例:
+- 一括アンインストールの例:
   ```
   Running edit-csv-uninstall.ps1...
   Uninstalling janisdd.vscode-edit-csv...
@@ -144,56 +147,6 @@ code --list-extensions | Select-String -Pattern 'markdown-pdf|git-graph|todo-tre
   ```
 
 ## 追加の検討事項
-### OS別コマンド差分（PowerShell / Bash）
-- 例示のコマンドは原則 Windows PowerShell 向けです。Linux/Mac の Bash では記法が異なります。
-- 主な差分:
-  - フィルタ: PowerShell は `Select-String`/`Where-Object`、Bash は `grep`/`awk`
-  - 行継続: PowerShell は `` ` ``、Bash は `\`
-  - 環境変数: PowerShell は `$env:VAR`、Bash は `$VAR`
-
-- コマンド対比例:
-  - CLI確認
-    - PowerShell
-      ```powershell
-      Get-Command code -ErrorAction SilentlyContinue | Select-Object -First 1 | Format-List | Out-String
-      ```
-    - Bash
-      ```bash
-      which code && code --version
-      ```
-  - 個別インストール/アンインストール
-    - 共通（両OS）
-      ```
-      code --install-extension <extensionId>
-      code --uninstall-extension <extensionId>
-      ```
-  - 確認（一覧から該当拡張のみ表示）
-    - PowerShell
-      ```powershell
-      code --list-extensions | Where-Object { $_ -eq '<extensionId>' }
-      ```
-    - Bash
-      ```bash
-      code --list-extensions | grep -E '^<extensionId>$'
-      ```
-  - Docker（code-server例）
-    - PowerShell
-      ```powershell
-      docker run --rm `
-        -v "$env:USERPROFILE\.code-server":/home/coder/.local/share/code-server `
-        -v "$PWD":/workspace `
-        -w /workspace `
-        <image-with-code-server> bash -lc "code-server --install-extension <extensionId>"
-      ```
-    - Bash
-      ```bash
-      docker run --rm \
-        -v "$HOME/.local/share/code-server":/home/coder/.local/share/code-server \
-        -v "$PWD":/workspace \
-        -w /workspace \
-        <image-with-code-server> bash -lc "code-server --install-extension <extensionId>"
-      ```
-      
 ### Dockerからの実行（ボリューム連携）
 - 目的: コンテナから拡張インストール/アンインストールを実行できるようにし、CIや配布に対応。
 - 前提: コンテナ側で`code`互換のCLI（例: `code-server`）を使用。ホスト側拡張ディレクトリをボリュームでマウントして反映。
