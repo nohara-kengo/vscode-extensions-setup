@@ -60,8 +60,7 @@ Pythonがインストールされていれば、OS問わず同じ手順で拡張
   - Windows: `python scripts/extensions/extensions.py uninstall`
   - Linux/WSL: `python3 scripts/extensions/extensions.py uninstall` または `python scripts/extensions/extensions.py uninstall`
 5. インストール確認（フィルタ表示）
-  - Windows: `code --list-extensions | Select-String -Pattern 'vscode-edit-csv|markdown-pdf|git-graph|todo-tree'`
-  - Linux/WSL: `code --list-extensions | grep -E 'vscode-edit-csv|markdown-pdf|git-graph|todo-tree'`
+  - Windows/Linux系共通: `code --list-extensions`
 
 ---
 
@@ -97,20 +96,17 @@ python scripts/extensions/extension_task.py uninstall janisdd.vscode-edit-csv
   ```
   Installing janisdd.vscode-edit-csv...
   Installed: janisdd.vscode-edit-csv
-  このセクションは「Windows PowerShell」向けの実行ポリシー設定と、「Linux/WSL/Mac」向けの注意点を両方記載しています。どちらの手順も選択できます。
-
-  #### Windows（PowerShell）
-  PowerShellスクリプト（.ps1）を使う場合、既定の実行ポリシーやブロック属性で実行できないことがあります。必要に応じて下記コマンドで一時的に許可してください。
-
-  ```powershell
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-  Get-ChildItem -Path . -Filter *.ps1 -Recurse | Unblock-File
   ```
+---
 
-  ---
+#### OS共通（Windows/Linux/WSL/Mac）
+Pythonスクリプト（.py）はOS問わず同じ手順で実行できます。特別な実行ポリシーの設定やファイルのブロック解除は不要です。
+コマンドプロンプト、PowerShell、ターミナル等で以下のように実行してください。
 
-  #### Linux/WSL/Mac（Bash）
-  Linux/WSL/Macではスクリプト実行ポリシーの概念はありません。BashスクリプトやPythonスクリプトはそのまま実行できます。
+```bash
+python scripts/extensions/extensions.py install
+python scripts/extensions/extensions.py uninstall
+```
 
 ### 確認コマンド（任意）
 ```powershell
@@ -129,19 +125,18 @@ code --list-extensions
   ```
   - アンインストール後の例: 該当拡張がなければ出力なし（何も表示されないのが期待値）。
 
+
 - 一括インストールの例:
   ```
-  Running edit-csv.ps1...
   Installing janisdd.vscode-edit-csv...
-  Extension 'janisdd.vscode-edit-csv' was successfully installed!
+  Installed: janisdd.vscode-edit-csv
   ...
   ```
 
 - 一括アンインストールの例:
   ```
-  Running edit-csv-uninstall.ps1...
   Uninstalling janisdd.vscode-edit-csv...
-  Extension 'janisdd.vscode-edit-csv' was successfully uninstalled!
+  Uninstalled: janisdd.vscode-edit-csv
   Not installed: janisdd.vscode-edit-csv  # 既に削除済みの場合
   ...
   ```

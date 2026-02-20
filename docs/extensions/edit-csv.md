@@ -22,24 +22,19 @@ code --list-extensions
 code --list-extensions | Where-Object { $_ -eq 'janisdd.vscode-edit-csv' }
 ```
 
+
 ## 個別インストール
-- コマンドでインストール：
+codeコマンドでインストール
 ```powershell
 code --install-extension janisdd.vscode-edit-csv
 ```
-- スクリプトでインストール：
-```powershell
-.\scripts\extensions\edit-csv.ps1
-```
+※複数拡張をまとめて管理したい場合は、リポジトリのPythonスクリプト（extensions.py）による一括管理もご利用ください。
+
 
 ## アンインストール
-- コマンドで削除：
+codeコマンドで削除
 ```powershell
 code --uninstall-extension janisdd.vscode-edit-csv
-```
-- スクリプトで削除：
-```powershell
-.\scripts\extensions\uninstall\edit-csv-uninstall.ps1
 ```
 
 ## 基本の使い方

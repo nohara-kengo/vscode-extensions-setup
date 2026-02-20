@@ -22,24 +22,19 @@ code --list-extensions
 code --list-extensions | Where-Object { $_ -eq 'yzane.markdown-pdf' }
 ```
 
+
 ## 個別インストール
-- コマンドでインストール：
+codeコマンドでインストール
 ```powershell
 code --install-extension yzane.markdown-pdf
 ```
-- スクリプトでインストール：
-```powershell
-.\scripts\extensions\markdown-pdf.ps1
-```
+※複数拡張をまとめて管理したい場合は、リポジトリのPythonスクリプト（extensions.py）による一括管理もご利用ください。
+
 
 ## アンインストール
-- コマンドで削除：
+codeコマンドで削除
 ```powershell
 code --uninstall-extension yzane.markdown-pdf
-```
-- スクリプトで削除：
-```powershell
-.\scripts\extensions\uninstall\markdown-pdf-uninstall.ps1
 ```
 
 ## 基本の使い方

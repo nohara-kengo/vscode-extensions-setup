@@ -22,24 +22,19 @@ code --list-extensions
 code --list-extensions | Where-Object { $_ -eq 'mhutchie.git-graph' }
 ```
 
+
 ## 個別インストール
-- コマンドでインストール：
+codeコマンドでインストール
 ```powershell
 code --install-extension mhutchie.git-graph
 ```
-- スクリプトでインストール：
-```powershell
-.\scripts\extensions\git-graph.ps1
-```
+※複数拡張をまとめて管理したい場合は、リポジトリのPythonスクリプト（extensions.py）による一括管理もご利用ください。
+
 
 ## アンインストール
-- コマンドで削除：
+codeコマンドで削除
 ```powershell
 code --uninstall-extension mhutchie.git-graph
-```
-- スクリプトで削除：
-```powershell
-.\scripts\extensions\uninstall\git-graph-uninstall.ps1
 ```
 
 ## 基本の使い方
