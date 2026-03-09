@@ -10,6 +10,7 @@
 - [Dockerとは](#dockerとは)
 - [なぜWSL + Dockerで開発するのか](#なぜwsl--dockerで開発するのか)
 - [全体像まとめ](#全体像まとめ)
+- [コンテナの揮発性について](#コンテナの揮発性について)
 - [ワークフロー](#ワークフロー)
 
 ---
@@ -57,7 +58,7 @@ flowchart TB
     subgraph WIN["Windows"]
       WApp["Windowsアプリ"]
     end
-    subgraph WSL["WSL"]
+    subgraph WSL["WSL（Linux）"]
       LApp["Linuxコマンド"]
     end
     WApp -- 連携 --> WSL
@@ -106,24 +107,31 @@ flowchart LR
 
 ### WSL + Dockerによる解決
 
+VS CodeはWSL内のLinuxに直接インストールして起動します。Windows側からリモート接続するのではなく、Linux環境の中でVS Codeを動かし、その上でDockerコンテナを立ち上げて開発を行います。
+
 ```mermaid
 flowchart TB
   subgraph DEV["開発者のPC"]
-    VSCode["VS Code"]
-    subgraph WSL["WSL"]
+    subgraph WIN["Windows"]
+      WTerm["ターミナル"]
+    end
+    subgraph WSL["WSL（Linux）"]
+      VSCode["VS Code"]
       Docker["Docker"]
       subgraph CONT["コンテナ"]
         App["アプリ"]
         DB["データベース"]
       end
+      VSCode --> Docker
       Docker --> CONT
     end
-    VSCode -- Remote WSL --> WSL
+    WTerm -- WSL起動 --> WSL
   end
 
+  style WIN fill:#e0e8f0,stroke:#8899aa,stroke-width:2px
   style WSL fill:#f0e8d8,stroke:#aa9977,stroke-width:2px
   style CONT fill:#f5f5f5,stroke:#aaa,stroke-width:2px
-  style VSCode fill:#e0e8f0,stroke:#8899aa,stroke-width:2px
+  style VSCode fill:#c8d8e8,stroke:#8899aa,stroke-width:2px
 ```
 
 ### メリット
@@ -142,20 +150,78 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-  A["Windows"] --> B["WSL"]
-  B --> C["Docker"]
-  C --> D["コンテナ"]
-  E["VS Code"] -- Remote WSL --> B
+  A["Windows"] --> B["WSL（Linux）"]
+  B --> C["VS Code"]
+  B --> D["Docker"]
+  D --> E["コンテナ"]
 
   style A fill:#e0e8f0,stroke:#8899aa,stroke-width:2px
   style B fill:#f0e8d8,stroke:#aa9977,stroke-width:2px
-  style C fill:#dde5ed,stroke:#8899aa,stroke-width:2px
-  style D fill:#f5f5f5,stroke:#aaa,stroke-width:2px
-  style E fill:#e0e8f0,stroke:#8899aa,stroke-width:2px
+  style C fill:#c8d8e8,stroke:#8899aa,stroke-width:2px
+  style D fill:#dde5ed,stroke:#8899aa,stroke-width:2px
+  style E fill:#f5f5f5,stroke:#aaa,stroke-width:2px
 ```
 
-> Windows上のWSL（Linux）でDockerを動かし、コンテナ内で開発を行います。
-> VS CodeからRemote WSL拡張で接続することで、Windows上で快適にLinux環境の開発ができます。
+> Windows上のWSL（Linux）にVS Codeをインストールし、Linux環境内で直接開発を行います。
+> DockerもWSL内で動作し、コンテナ内でアプリやデータベースを実行します。
+
+---
+
+## コンテナの揮発性について
+
+Dockerコンテナは**揮発性**（volatile）です。コンテナを停止・削除すると、コンテナ内で作成・変更したデータはすべて失われます。
+
+```mermaid
+flowchart LR
+  subgraph BEFORE["コンテナ起動中"]
+    C1["コンテナ"]
+    D1["作業データ"]
+    C1 --- D1
+  end
+
+  subgraph AFTER["コンテナ削除後"]
+    X1["データは消失"]
+  end
+
+  BEFORE -- "docker rm" --> AFTER
+
+  style C1 fill:#f5f5f5,stroke:#aaa,color:#333
+  style D1 fill:#f5f5f5,stroke:#aaa,color:#333
+  style X1 fill:#ffdddd,stroke:#cc8888,color:#333
+```
+
+### なぜ揮発性なのか
+
+コンテナは「使い捨てできる実行環境」として設計されています。壊れたら削除して作り直すことで、常にクリーンな状態を保てます。これはメリットでもありますが、データの扱いには注意が必要です。
+
+### データを永続化するには
+
+コンテナ内のデータを残したい場合は、**ボリューム（Volume）** や **バインドマウント（Bind Mount）** を使って、WSL側のファイルシステムとコンテナ内を接続します。
+
+| 方法 | 説明 |
+|---|---|
+| **ボリューム** | Docker が管理する専用の保存領域。コンテナを削除してもデータが残る |
+| **バインドマウント** | WSL側の特定のフォルダをコンテナ内にそのまま共有する |
+
+```mermaid
+flowchart LR
+  subgraph WSL["WSL（Linux）"]
+    SRC["ソースコード"]
+    subgraph Docker["Docker"]
+      subgraph CONT["コンテナ"]
+        APP["アプリ"]
+      end
+    end
+    SRC -- "バインドマウント" --> CONT
+  end
+
+  style WSL fill:#f0e8d8,stroke:#aa9977,stroke-width:2px
+  style CONT fill:#f5f5f5,stroke:#aaa,stroke-width:2px
+  style SRC fill:#ddeedd,stroke:#88aa88,stroke-width:2px
+```
+
+> ソースコードはWSL側に置き、バインドマウントでコンテナと共有します。
+> これにより、コンテナを削除してもソースコードは失われません。
 
 ---
 
