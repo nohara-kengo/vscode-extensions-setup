@@ -12,6 +12,8 @@
 - [全体像まとめ](#全体像まとめ)
 - [コンテナの揮発性について](#コンテナの揮発性について)
 - [ワークフロー](#ワークフロー)
+  - [ブランチ運用](#ブランチ運用)
+  - [完了条件](#完了条件)
 
 ---
 
@@ -256,3 +258,19 @@ flowchart TB
 | 4 | GitHubでPR作成 | **3/18(水)午前中いっぱい** |
 | 5 | 野原レビュー＆フィードバック | 3/18(水) |
 | 6 | PTU全体に共有して完了 | 3/18(水)以降 |
+
+### ブランチ運用
+
+| リポジトリ | ベースブランチ | 作業ブランチ |
+|---|---|---|
+| [vscode-extensions-setup](https://github.com/nohara-kengo/vscode-extensions-setup/tree/main) | main | chore/01 |
+| [frontend-preview-env](https://github.com/nohara-kengo/frontend-preview-env/tree/main) | main | chore/01 |
+
+> 参考資料: [Git Flow ガイドライン](https://github.com/NIHON-COMTHINK/nct-dev-guidelines/blob/main/docs/04-git-workflow/git-flow.md)
+
+### 完了条件
+
+| リポジトリ | 完了条件 |
+|---|---|
+| **vscode-extensions-setup** | READMEファイルに自動セットアップ手順のdockerのものを記載すること |
+| **frontend-preview-env** | docker関連ファイルの修正を行いPRすること |
