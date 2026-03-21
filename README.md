@@ -165,3 +165,20 @@ docker run --rm `
 - 次のステップ（提案）:
   - `Dockerfile` と `docker-compose.yml` の雛形を追加（`code-server`入りイメージ、拡張のバッチ適用コマンドを同梱）。
   - CI用ジョブからボリューム指定で一括インストール/アンインストールを実行。
+
+- 完了済み:
+  - `frontend-preview-env` に `devcontainer.json` を作成し、ボリュームマウント経由で本リポジトリの `extensions.py install` を `postCreateCommand` で実行する形で統合済み。Dev Container 起動時に4拡張が自動インストールされることを確認済み（2026-03-21）。
+
+### devcontainer.json によるボリューム連携（推奨）
+Dev Container を利用するプロジェクトでは、`devcontainer.json` の `mounts` で本リポジトリをマウントし、`postCreateCommand` で `extensions.py install` を実行することで、拡張リストを一元管理できます。拡張の追加・削除は `extensions.py` のみ変更すれば連携先にも反映されます。
+
+- 設定例（`frontend-preview-env/.devcontainer/devcontainer.json` で実装済み）:
+```json
+{
+  "mounts": [
+    "source=${localWorkspaceFolder}/../vscode-extensions-setup,target=/workspaces/vscode-extensions-setup,type=bind"
+  ],
+  "postCreateCommand": "python3 /workspaces/vscode-extensions-setup/scripts/extensions/extensions.py install"
+}
+```
+- 前提: `vscode-extensions-setup` リポジトリが対象プロジェクトと同じ親ディレクトリに存在すること。
